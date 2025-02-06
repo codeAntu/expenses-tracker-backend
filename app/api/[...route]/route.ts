@@ -5,6 +5,7 @@ import { drizzle } from "drizzle-orm/neon-http";
 import "dotenv/config";
 import { eq } from "drizzle-orm";
 import { usersTable } from "@/db/schema";
+// import db from "@/db";
 
 export const runtime = "nodejs";
 const db = drizzle(process.env.DATABASE_URL!);
@@ -25,17 +26,22 @@ app.get("/add-user", (c) => {
 });
 
 app.post("/add-user", async (c) => {
-  const user: typeof usersTable.$inferInsert = {
-    name: "John",
-    age: 30,
-    email: "john@example.com",
-  };
+  // const user: typeof usersTable.$inferInsert = {
+  //   name: "new",
+  //   age: 30,
+  //   email: "2@example.com",
+  // };
 
-  await db.insert(usersTable).values(user);
-  console.log("New user created!");
+  // const data = await db.insert(usersTable).values(user).returning({
+  //   name: usersTable.name,
+  // });
 
-  const users = await db.select().from(usersTable);
-  console.log("Getting all users from the database: ", users);
+  // console.log(data);
+
+  // console.log("New user created!");
+
+  // const users = await db.select().from(usersTable);
+  // console.log("Getting all users from the database: ", users);
 
   return c.json({
     message: "User created",
