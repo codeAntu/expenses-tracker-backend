@@ -8,7 +8,10 @@ import {
   varchar,
 } from "drizzle-orm/pg-core";
 
-export const transactionTypeEnum = pgEnum("transaction_type", ["income", "expense"]);
+export const transactionTypeEnum = pgEnum("transaction_type", [
+  "income",
+  "expense",
+]);
 
 export const usersTable = pgTable(
   "users",
