@@ -8,7 +8,7 @@ import {
   varchar,
 } from "drizzle-orm/pg-core";
 
-// const transactionTypeEnum = pgEnum("transaction_type", ["income", "expense"]);
+export const transactionTypeEnum = pgEnum("transaction_type", ["income", "expense"]);
 
 export const usersTable = pgTable(
   "users",
@@ -32,12 +32,12 @@ export const usersTable = pgTable(
   }
 );
 
-// export const TransactionTable = pgTable("transaction", {
-//   id: uuid("id").primaryKey().defaultRandom(),
-//   amount: integer().notNull(),
-//   description: varchar({ length: 255 }).notNull(),
-//   // transactionType: transactionTypeEnum().notNull(),
-//   userId: uuid("user_id")
-//     .notNull()
-//     .references(() => usersTable.id),
-// });
+export const TransactionTable = pgTable("transaction", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  amount: integer().notNull(),
+  description: varchar({ length: 255 }).notNull(),
+  transactionType: transactionTypeEnum(),
+  userId: uuid("user_id")
+    .notNull()
+    .references(() => usersTable.id),
+});
