@@ -8,4 +8,12 @@ test.get("/test", (c) => {
   });
 });
 
+test.post("/test", async (c) => {
+  const { name } = await c.req.json();
+
+  return c.json({
+    message: `Hello from Hono!`,
+  });
+});
+
 export default test;
