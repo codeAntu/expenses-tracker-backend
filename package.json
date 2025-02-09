@@ -5,7 +5,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "drizzle": "drizzle-kit push"
+    "drizzle": "drizzle-kit push",
+    "build:rpc": "tsc -p tsconfig.rpc.json && bun copy-zod.ts && bun copy-rpc.ts"
   },
   "dependencies": {
     "@hono/zod-validator": "^0.4.2",
