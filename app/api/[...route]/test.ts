@@ -9,10 +9,12 @@ test.get("/test", (c) => {
 });
 
 test.post("/test", async (c) => {
-  const { name } = await c.req.json();
+  const body = await c.req.formData();
+
+  console.log(body.get("name"));
 
   return c.json({
-    message: `Hello from Hono!`,
+    message: `Hello from Hono! `,
   });
 });
 

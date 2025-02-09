@@ -12,8 +12,13 @@ import auth from "./auth";
 export const runtime = "nodejs";
 
 const app = new Hono().basePath("/api");
-// Use the CORS middleware
-app.use("*", cors());
+
+app.use(
+  "*",
+  cors({
+    origin: "*",
+  })
+);
 
 app.route("/", test);
 app.route("/", user);
