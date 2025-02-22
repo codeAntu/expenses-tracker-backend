@@ -16,6 +16,11 @@ const test = new Hono()
     return c.json({
       message: `Hello from Hono! `,
     });
-  });
+  }).post("/new", async (c) => {
+    return c.json({
+      message: "Hello from Hono!",
+    });
+  }
+);
 
 export default test;

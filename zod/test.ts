@@ -11,3 +11,7 @@ export const user = z.object({
   email: z.string().email(),
   age: z.string().min(2),
 });
+
+export const auth = z.object({
+  idToken: z.string(),
+});
