@@ -2,15 +2,15 @@ import { Hono } from "hono";
 import { authValidator } from "@/zod/auth";
 import { zValidator } from "@hono/zod-validator";
 import { auth } from "@/firebase";
+import { uuid } from "drizzle-orm/pg-core";
 // import { auth } from "firebase-admin";
 
 const authRoute = new Hono()
   .post("/", zValidator("form", authValidator), async (c) => {
     const data = await c.req.formData();
     const idToken = data.get("idToken");
-    if (idToken) {
-      console.log("I have the token");
-    }
+
+  
 
     try {
       const decodedToken = await auth.verifyIdToken(idToken as string);
@@ -19,6 +19,8 @@ const authRoute = new Hono()
       console.error("Token verification failed:", error);
       return c.json({ error: "Invalid token" }, 401);
     }
+
+    // update in database
 
     return c.json({
       message: "Hello from Hono!",

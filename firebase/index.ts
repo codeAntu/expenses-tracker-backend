@@ -1,6 +1,5 @@
-// filepath: /c:/programing/git/expenses-tracker-backend/lib/firebaseAdmin.ts
-// filepath: /c:/programing/git/expenses-tracker-backend/firebase/index.ts
 import * as admin from "firebase-admin";
+import { Auth } from "firebase-admin/auth";
 
 const serviceAccount = JSON.parse(
   process.env.FIREBASE_SERVICE_ACCOUNT as string
@@ -13,4 +12,4 @@ if (!admin.apps.length) {
 }
 
 export default admin;
-export const auth = admin.auth();
+export const auth: Auth = admin.auth();

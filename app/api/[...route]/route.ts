@@ -32,4 +32,4 @@ export type AppType =
   | typeof testRoute
   | typeof authRoute
   | typeof userRoute
-  | typeof transactionRoute;
+  | typeof transactionRoute
