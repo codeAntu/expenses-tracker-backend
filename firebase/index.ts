@@ -1,16 +1,16 @@
-import * as admin from 'firebase-admin';
+// filepath: /c:/programing/git/expenses-tracker-backend/lib/firebaseAdmin.ts
+// filepath: /c:/programing/git/expenses-tracker-backend/firebase/index.ts
+import * as admin from "firebase-admin";
 
-// Ensure the environment variable is set
-if (!process.env.FIREBASE_SERVICE_ACCOUNT) {
-  throw new Error('FIREBASE_SERVICE_ACCOUNT environment variable is not set');
+const serviceAccount = JSON.parse(
+  process.env.FIREBASE_SERVICE_ACCOUNT as string
+);
+
+if (!admin.apps.length) {
+  admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+  });
 }
 
-// Parse and type the service account
-const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT) as admin.ServiceAccount;
-
-// Initialize Firebase Admin
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-});
-
+export default admin;
 export const auth = admin.auth();

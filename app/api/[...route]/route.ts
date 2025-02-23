@@ -6,7 +6,7 @@ import auth from "./auth";
 import user from "./user";
 import transaction from "./transaction";
 
-export const runtime = "node";
+export const runtime = "nodejs";
 
 const app = new Hono().basePath("/api");
 app.use("*", cors({ origin: "*" }));

@@ -53,7 +53,6 @@ export const transactions = pgTable("transaction", {
 export const tags = pgTable("tags", {
   id: uuid("id").primaryKey().defaultRandom(),
   name: varchar("name", { length: 255 }).notNull(),
-  color: varchar("color", { length: 255 }).notNull(),
 });
 
 export const transactionTags = pgTable(
@@ -73,37 +72,6 @@ export const transactionTags = pgTable(
   }
 );
 
-export const goals = pgTable(
-  "goals",
-  {
-    id: uuid("id").primaryKey().defaultRandom(),
-    userId: uuid("user_id")
-      .notNull()
-      .references(() => users.id),
-    targetAmount: numeric("target_amount", {
-      precision: 10,
-      scale: 2,
-    })
-      .notNull()
-      .default("0"),
-    currentAmount: numeric("current_amount", {
-      precision: 10,
-      scale: 2,
-    })
-      .notNull()
-      .default("0"),
-    description: varchar("description", { length: 255 }).notNull(),
-    color: varchar("color", { length: 255 }).notNull(),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
-    updatedAt: timestamp("updated_at").notNull().defaultNow(),
-  },
-  (table) => {
-    return {
-      userIndex: index("user_index").on(table.userId),
-    };
-  }
-);
-
 // relations
 
 export const userRelations = relations(users, ({ one, many }) => {
@@ -112,11 +80,14 @@ export const userRelations = relations(users, ({ one, many }) => {
   };
 });
 
-export const transactionRelations = relations(transactions, ({ one, many }) => {
-  return {
-    user: one(users, {
-      fields: [transactions.userId],
-      references: [users.id],
-    }),
-  };
-});
+export const transactionRelations = relations(
+  transactions,
+  ({ one, many }) => {
+    return {
+      user: one(users, {
+        fields: [transactions.userId],
+        references: [users.id],
+      }),
+    };
+  }
+);

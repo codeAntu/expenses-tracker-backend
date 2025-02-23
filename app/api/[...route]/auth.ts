@@ -1,17 +1,19 @@
 import { Hono } from "hono";
 import { authValidator } from "@/zod/auth";
 import { zValidator } from "@hono/zod-validator";
-import { auth } from "firebase-admin";
+import { auth } from "@/firebase";
+// import { auth } from "firebase-admin";
 
 const authRoute = new Hono()
   .post("/", zValidator("form", authValidator), async (c) => {
     const data = await c.req.formData();
     const idToken = data.get("idToken");
-    console.log(idToken);
+    if (idToken) {
+      console.log("I have the token");
+    }
 
     try {
-      // Verify the ID token, optionally checking for revocation
-      const decodedToken = await auth().verifyIdToken(idToken as string);
+      const decodedToken = await auth.verifyIdToken(idToken as string);
       console.log(decodedToken);
     } catch (error) {
       console.error("Token verification failed:", error);
