@@ -80,14 +80,11 @@ export const userRelations = relations(users, ({ one, many }) => {
   };
 });
 
-export const transactionRelations = relations(
-  transactions,
-  ({ one, many }) => {
-    return {
-      user: one(users, {
-        fields: [transactions.userId],
-        references: [users.id],
-      }),
-    };
-  }
-);
+export const transactionRelations = relations(transactions, ({ one, many }) => {
+  return {
+    user: one(users, {
+      fields: [transactions.userId],
+      references: [users.id],
+    }),
+  };
+});
