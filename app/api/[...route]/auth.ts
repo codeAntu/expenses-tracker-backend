@@ -1,7 +1,7 @@
 import db from "@/db";
 import { users } from "@/db/schema";
 import admin, { auth } from "@/firebase";
-import { authValidator } from "@/zod/auth";
+import { authValidator, tokenValidator } from "@/zod/auth";
 import { zValidator } from "@hono/zod-validator";
 import { eq } from "drizzle-orm";
 import { Hono } from "hono";
@@ -14,30 +14,19 @@ const authRoute = new Hono()
 
     // verifyIdToken from Firebase Admin SDK
     const decodedToken = await auth.verifyIdToken(idToken as string);
-    console.log(decodedToken);
 
-    if (!decodedToken) {
-      return c.json({
-        message: "Unauthorized",
-      });
-    }
-    if (!decodedToken.email_verified) {
-      return c.json({
-        message: "Email not verified",
-      });
-    }
-    if (!decodedToken.email) {
-      return c.json({
-        message: "Email not found",
-      });
-    }
+    if (!decodedToken)
+      return c.json({ message: "Unauthorized", user: null }, 401);
+    if (!decodedToken.email_verified)
+      return c.json({ message: "Email not verified", user: null }, 401);
+    if (!decodedToken.email)
+      return c.json({ message: "Email not found", user: null }, 401);
 
     let existingUser = await db
       .select()
       .from(users)
       .where(eq(users.email, decodedToken.email))
       .limit(1);
-
     let user = existingUser[0];
 
     // If user does not exist, create a new user
@@ -50,7 +39,6 @@ const authRoute = new Hono()
           totalAmount: "0",
         })
         .returning();
-
       user = newUser[0];
     }
 
@@ -60,40 +48,33 @@ const authRoute = new Hono()
       email: user.email,
       name: user.name,
     };
-
     const token = await admin
       .auth()
-      .createCustomToken(user.id.toString(), { expiresIn: "5y" });
+      .createCustomToken(userToken.toString(), { expiresIn: "5y" });
 
-    setCookie(c, "userToken", token, {
-      httpOnly: true,
-      secure: true,
-    });
-
-    return c.json({
-      message: "Authenticated",
-      user,
-    });
+    return c.json(
+      {
+        message: "Successfully logged in",
+        user: {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          totalAmount: user.totalAmount,
+          token,
+        },
+      },
+      200
+    );
   })
   .get("/", async (c) => {
-    const token = getCookie(c, "userToken");
+    const authHeader = c.req.header("Authorization");
+    if (!authHeader) return c.json({ message: "Unauthorized" }, 401);
 
-    if (!token) {
-      return c.json({ message: "Token not found " }, 401);
-    }
-
-    let decoded;
-    try {
-      decoded = await admin.auth().verifyIdToken(token);
-    } catch (error) {
-      return c.json({ message: "Unauthorized" }, 401);
-    }
-
-    const user = decoded;
-
+    const token = authHeader.split(" ")[1]; // Extract the token from the "Bearer <token>" format
+    if (!token) return c.json({ message: "Unauthorized" }, 401);
     return c.json({
       message: "Hello from Hono!",
-      user,
+      token,
     });
   });
 

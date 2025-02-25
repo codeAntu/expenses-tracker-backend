@@ -1,9 +1,8 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { handle } from "hono/vercel";
-import test from "./test";
 import auth from "./auth";
-import user from "./user";
+import test from "./test";
 import transaction from "./transaction";
 
 export const runtime = "nodejs";
@@ -13,7 +12,6 @@ app.use("*", cors({ origin: "*" }));
 
 const testRoute = app.route("/test", test);
 const authRoute = app.route("/auth", auth);
-const userRoute = app.route("/user", user);
 const transactionRoute = app.route("/transaction", transaction);
 
 const hello = app.get("/hello", (c) => {
@@ -31,5 +29,4 @@ export type AppType =
   | typeof hello
   | typeof testRoute
   | typeof authRoute
-  | typeof userRoute
-  | typeof transactionRoute
+  | typeof transactionRoute;
