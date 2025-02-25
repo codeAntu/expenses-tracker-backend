@@ -21,7 +21,6 @@ const user = new Hono()
       .insert(users)
       .values({
         name: "test",
-        username: "test",
         email: "test",
       })
       .returning({

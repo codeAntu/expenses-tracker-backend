@@ -21,112 +21,80 @@ const authRoute = new Hono()
         message: "Unauthorized",
       });
     }
-
-    // Check if user exists in the database
-    const existingUser = await db
-      .select()
-      .from(users)
-      .where(eq(users.name, decodedToken.name));
-
-    // If user does not exist, create a new user
-    if (existingUser.length === 0) {
-      const newUser: typeof users.$inferInsert = {
-        name: decodedToken.name,
-        username: decodedToken.name ? decodedToken.name : "",
-        email: decodedToken.email ? decodedToken.email : "",
-        totalAmount: "0",
-      };
-      const user = await db.insert(users).values(newUser);
-      console.log(user);
+    if (!decodedToken.email_verified) {
+      return c.json({
+        message: "Email not verified",
+      });
+    }
+    if (!decodedToken.email) {
+      return c.json({
+        message: "Email not found",
+      });
     }
 
-    // Create a session cookie
-    const cookie = await admin
+    let existingUser = await db
+      .select()
+      .from(users)
+      .where(eq(users.email, decodedToken.email))
+      .limit(1);
+
+    let user = existingUser[0];
+
+    // If user does not exist, create a new user
+    if (!user) {
+      const newUser = await db
+        .insert(users)
+        .values({
+          name: decodedToken.name,
+          email: decodedToken.email,
+          totalAmount: "0",
+        })
+        .returning();
+
+      user = newUser[0];
+    }
+
+    // create a custom token
+    const userToken = {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+    };
+
+    const token = await admin
       .auth()
-      .createSessionCookie(idToken as string, { expiresIn: 60 * 60 * 24 * 5 });
+      .createCustomToken(user.id.toString(), { expiresIn: "5y" });
 
-    console.log(cookie);
-
-    setCookie(c, "session", cookie);
+    setCookie(c, "userToken", token, {
+      httpOnly: true,
+      secure: true,
+    });
 
     return c.json({
       message: "Authenticated",
+      user,
     });
   })
   .get("/", async (c) => {
-    // check cookie
-    const allCookies = getCookie(c);
-    const firebaseCookie = getCookie(c, "session");
+    const token = getCookie(c, "userToken");
 
-    console.log("Firebase cookie", firebaseCookie);
+    if (!token) {
+      return c.json({ message: "Token not found " }, 401);
+    }
 
-    console.log("All cookies", allCookies);
+    let decoded;
+    try {
+      decoded = await admin.auth().verifyIdToken(token);
+    } catch (error) {
+      return c.json({ message: "Unauthorized" }, 401);
+    }
 
-    // verify session cookie
-    // try {
-    //   await admin.auth().verifySessionCookie(firebaseCookie);
-    //   return c.json({
-    //     message: "Protected route",
-    //   });
-    // } catch (e) {
-    //   return c.json({
-    //     message: "Unauthorized",
-    //   });
-    // }
+    const user = decoded;
 
     return c.json({
       message: "Hello from Hono!",
+      user,
     });
   });
 
 export default authRoute;
-
-// const helloPost = app.post("/hello", async (c) => {
-//   const formData = await c.req.formData();
-//   const name = formData.get("name");
-//   console.log(name);
-//   return c.json({
-//     message: "Hello from Hono!",
-//   });
-// });
-
-// const authRoute = app.post("/auth", async (c) => {
-//   const data = await c.req.formData();
-//   const idToken = data.get("idToken");
-
-//   if (!idToken) {
-//     return c.json({
-//       message: "No idToken provided",
-//     });
-//   }
-
-//   const cookie = await admin
-//     .auth()
-//     .createSessionCookie(idToken as string, { expiresIn: 60 * 60 * 24 * 5 });
-
-//   setCookie(c, "session", cookie);
-
-//   return c.json({
-//     message: "Authenticated",
-//   });
-// });
-
-// const authProtectedRoute = app.get("/protected", async (c) => {
-//   const sessionCookie = getCookie(c, "session");
-//   if (!sessionCookie) {
-//     return c.json({
-//       message: "Unauthorized",
-//     });
-//   }
-
-//   try {
-//     await admin.auth().verifySessionCookie(sessionCookie);
-//     return c.json({
-//       message: "Protected route",
-//     });
-//   } catch (e) {
-//     return c.json({
-//       message: "Unauthorized",
-//     });
-//   }
-// });
