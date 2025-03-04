@@ -15,6 +15,8 @@ const authRoute = new Hono()
     // verifyIdToken from Firebase Admin SDK
     const decodedToken = await auth.verifyIdToken(idToken as string);
 
+    console.log(decodedToken);
+
     if (!decodedToken)
       return c.json({ message: "Unauthorized", user: null }, 401);
     if (!decodedToken.email_verified)
@@ -60,6 +62,7 @@ const authRoute = new Hono()
           name: user.name,
           email: user.email,
           totalAmount: user.totalAmount,
+          picture: decodedToken.picture?.toString() || "",
           token,
         },
       },
