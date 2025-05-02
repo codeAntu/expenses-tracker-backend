@@ -1,14 +1,15 @@
 import db from "@/db";
 import { users } from "@/db/schema";
 import admin, { auth } from "@/firebase";
-import { authValidator, tokenValidator } from "@/zod/auth";
+import { authValidator } from "@/zod/auth";
 import { zValidator } from "@hono/zod-validator";
 import { eq } from "drizzle-orm";
 import { Hono } from "hono";
-import { getCookie, setCookie } from "hono/cookie";
 
-const authRoute = new Hono()
-  .post("/", zValidator("form", authValidator), async (c) => {
+const authRoute = new Hono().post(
+  "/",
+  zValidator("form", authValidator),
+  async (c) => {
     const data = await c.req.formData();
     const idToken = data.get("idToken");
 
@@ -29,6 +30,7 @@ const authRoute = new Hono()
       .from(users)
       .where(eq(users.email, decodedToken.email))
       .limit(1);
+
     let user = existingUser[0];
 
     // If user does not exist, create a new user
@@ -68,17 +70,7 @@ const authRoute = new Hono()
       },
       200
     );
-  })
-  .get("/", async (c) => {
-    const authHeader = c.req.header("Authorization");
-    if (!authHeader) return c.json({ message: "Unauthorized" }, 401);
-
-    const token = authHeader.split(" ")[1]; // Extract the token from the "Bearer <token>" format
-    if (!token) return c.json({ message: "Unauthorized" }, 401);
-    return c.json({
-      message: "Hello from Hono!",
-      token,
-    });
-  });
+  }
+);
 
 export default authRoute;
