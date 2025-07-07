@@ -4,18 +4,33 @@ import { handle } from "hono/vercel";
 import auth from "./auth";
 import test from "./test";
 import transaction from "./transaction";
+import { rateLimit } from "@/lib/rateLimit";
 
 export const runtime = "nodejs";
 
 const app = new Hono().basePath("");
-app.use("*", cors({
-  origin: ["http://localhost:5173", "https://alibaba-x.vercel.app/"],
-  allowHeaders: ["Content-Type", "Authorization"],
-  allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  exposeHeaders: ["Content-Length"],
-  maxAge: 600,
-  credentials: true,
-}));
+app.use(
+  "*",
+  cors({
+    origin: ["http://localhost:5173", "https://alibaba-x.vercel.app/"],
+    allowHeaders: ["Content-Type", "Authorization"],
+    allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    exposeHeaders: ["Content-Length"],
+    maxAge: 600,
+    credentials: true,
+  })
+);
+
+const apiRateLimit = rateLimit({
+  windowMs: 60 * 1000,
+  maxRequests: 100,
+  keyGenerator: (c) => {
+    const clientIP = c.req.header("x-forwarded-for") || "unknown";
+    return `expenses-tracker:rate_limit:${clientIP}`;
+  },
+});
+
+app.use("*", apiRateLimit);
 
 const testRoute = app.route("/api/test", test);
 const authRoute = app.route("/api/auth", auth);
