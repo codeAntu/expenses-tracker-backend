@@ -8,7 +8,7 @@ import { rateLimit } from "@/lib/rateLimit";
 
 export const runtime = "nodejs";
 
-const app = new Hono().basePath("");
+const app = new Hono().basePath("/api");
 app.use(
   "*",
   cors({
@@ -32,8 +32,8 @@ const apiRateLimit = rateLimit({
 
 app.use("*", apiRateLimit);
 
-const testRoute = app.route("/api/test", test);
-const authRoute = app.route("/api/auth", auth);
+const testRoute = app.route("/test", test);
+const authRoute = app.route("/auth", auth);
 const transactionRoute = app.route("/api/transaction", transaction);
 
 const hello = app.get("/hello", (c) => {

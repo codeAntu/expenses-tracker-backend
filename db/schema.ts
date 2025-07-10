@@ -1,8 +1,13 @@
 import { relations } from "drizzle-orm";
 import {
-  index, integer,
-  numeric, pgEnum, pgTable, timestamp, uuid,
-  varchar
+  index,
+  integer,
+  numeric,
+  pgEnum,
+  pgTable,
+  timestamp,
+  uuid,
+  varchar,
 } from "drizzle-orm/pg-core";
 
 export const transactionTypeEnum = pgEnum("transaction_type", [
@@ -16,12 +21,21 @@ export const users = pgTable(
     id: uuid("id").primaryKey().defaultRandom(),
     name: varchar("name", { length: 255 }).notNull(),
     email: varchar("email", { length: 255 }).notNull().unique(),
+    password: varchar("password", { length: 255 }).notNull(),
+    isVerified: integer("is_verified"),
+    picture: varchar("profile_picture", {
+      length: 255,
+    })
+      .notNull()
+      .default(""),
     totalAmount: numeric("total_amount", {
       precision: 10,
       scale: 2,
     })
       .notNull()
       .default("0"),
+    otp: varchar("otp", { length: 6 }).notNull().default(""),
+    otpExpiresAt: timestamp("otp_expires_at").notNull().defaultNow(),
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
   },
