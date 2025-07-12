@@ -207,6 +207,51 @@ const authRoute = new Hono()
         token,
       })
     );
+  })
+  .post("/forgot-password", async (c) => {
+    const { email } = await c.req.json();
+    const user = await findUserByEmail(email);
+    if (!user) {
+      return c.json(ErrorResponses.notFound("User"));
+    }
+    // Generate OTP and expiry
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const otpExpiresAt = new Date(Date.now() + 30 * 60 * 1000); // 30 minutes
+    await db
+      .update(users)
+      .set({ otp, otpExpiresAt })
+      .where(eq(users.id, user.id));
+    // Send OTP to user's email (implementation not shown)
+    // await sendOtpEmail(user.email, otp);
+    console.log(`Forgot password OTP for ${user.email}: ${otp}`);
+    return c.json(
+      SuccessResponses.success("OTP sent to your email for password reset.", {
+        email: user.email,
+      })
+    );
+  })
+  .post("/reset-password", async (c) => {
+    const { email, otp, newPassword } = await c.req.json();
+    const user = await findUserByEmail(email);
+    if (!user) {
+      return c.json(ErrorResponses.notFound("User"));
+    }
+    if (user.otp !== otp) {
+      return c.json(ErrorResponses.unauthorized("Invalid OTP"));
+    }
+    if (new Date() > user.otpExpiresAt) {
+      return c.json(ErrorResponses.unauthorized("OTP expired"));
+    }
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    await db
+      .update(users)
+      .set({ password: hashedPassword, otp: "", otpExpiresAt: new Date() })
+      .where(eq(users.id, user.id));
+    return c.json(
+      SuccessResponses.success("Password reset successfully", {
+        email: user.email,
+      })
+    );
   });
 
 export default authRoute;
