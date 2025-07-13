@@ -1,68 +1,107 @@
-function createErrorResponse(
-  statusCode: number,
-  message: string,
-  error: unknown
-) {
+// Unified response creator for RPC-friendly structure
+export interface ApiResponse<T = unknown> {
+  success: boolean;
+  statusCode: number;
+  message: string;
+  data: T | null;
+  error: string | null;
+  timestamp: string;
+}
+
+function createResponse<T = unknown>({
+  success,
+  message,
+  data = null,
+  error = null,
+  statusCode = 200,
+}: {
+  success: boolean;
+  message: string;
+  data?: T | null;
+  error?: unknown;
+  statusCode?: number;
+}): ApiResponse<T> {
   return {
-    success: false,
+    success,
     statusCode,
     message,
-    error: error instanceof Error ? error.message : String(error),
+    data: data ?? null,
+    error: error
+      ? error instanceof Error
+        ? error.message
+        : String(error)
+      : null,
     timestamp: new Date().toISOString(),
   };
 }
 
-function createSuccessResponse(message: string, data: unknown = null) {
-  return {
-    message,
-    data,
-    timestamp: new Date().toISOString(),
-  };
-}
-
-const ErrorResponses = {
+const Responses = {
+  success: <T>(message: string, data: T) =>
+    createResponse<T>({ success: true, message, data }),
+  created: <T>(message: string, data: T) =>
+    createResponse<T>({ success: true, message, data, statusCode: 201 }),
+  updated: <T>(message: string, data: T) =>
+    createResponse<T>({ success: true, message, data }),
+  deleted: (message: string) => createResponse({ success: true, message }),
+  error: (message: string, error: unknown, statusCode: number = 500) =>
+    createResponse({ success: false, message, error, statusCode }),
   notFound: (resource: string = "resource") =>
-    createErrorResponse(404, `${resource} not found`, new Error("Not Found")),
+    createResponse({
+      success: false,
+      message: `${resource} not found`,
+      error: new Error("Not Found"),
+      statusCode: 404,
+    }),
   badRequest: (message: string) =>
-    createErrorResponse(400, message, new Error("Bad Request")),
+    createResponse({
+      success: false,
+      message,
+      error: new Error("Bad Request"),
+      statusCode: 400,
+    }),
   unauthorized: (message: string = "Unauthorized access.") =>
-    createErrorResponse(401, message, new Error("Unauthorized")),
+    createResponse({
+      success: false,
+      message,
+      error: new Error("Unauthorized"),
+      statusCode: 401,
+    }),
   alreadyExists: (resource: string) =>
-    createErrorResponse(
-      409,
-      `${resource} already exists`,
-      new Error("Conflict")
-    ),
+    createResponse({
+      success: false,
+      message: `${resource} already exists`,
+      error: new Error("Conflict"),
+      statusCode: 409,
+    }),
   serverError: (message: string = "Internal server error") =>
-    createErrorResponse(500, message, new Error("Internal Server Error")),
+    createResponse({
+      success: false,
+      message,
+      error: new Error("Internal Server Error"),
+      statusCode: 500,
+    }),
   forbidden: (message: string = "Forbidden") =>
-    createErrorResponse(403, message, new Error("Forbidden")),
+    createResponse({
+      success: false,
+      message,
+      error: new Error("Forbidden"),
+      statusCode: 403,
+    }),
   validationError: (errors: string[]) =>
-    createErrorResponse(
-      422,
-      "Validation error",
-      new Error(`Validation failed: ${errors.join(", ")}`)
-    ),
+    createResponse({
+      success: false,
+      message: "Validation error",
+      error: new Error(`Validation failed: ${errors.join(", ")}`),
+      statusCode: 422,
+    }),
   tooManyRequests: (message: string = "Too many requests") =>
-    createErrorResponse(429, message, new Error("Too Many Requests")),
+    createResponse({
+      success: false,
+      message,
+      error: new Error("Too Many Requests"),
+      statusCode: 429,
+    }),
 };
 
-const SuccessResponses = {
-  success: (message: string, data: unknown = null) =>
-    createSuccessResponse(message, data),
-  created: (message: string, data: unknown = null) =>
-    createSuccessResponse(message, data),
-  updated: (message: string, data: unknown = null) =>
-    createSuccessResponse(message, data),
-  deleted: (message: string) => createSuccessResponse(message),
-  accepted: (message: string, data: unknown = null) =>
-    createSuccessResponse(message, data),
-  noContent: () => createSuccessResponse("No content"),
-};
-
-export {
-  ErrorResponses,
-  SuccessResponses,
-  createErrorResponse,
-  createSuccessResponse,
-};
+export { createResponse, Responses };
+// ApiResponse is already exported as an interface, so no need to export again

@@ -21,16 +21,18 @@ app.use(
   })
 );
 
-const apiRateLimit = rateLimit({
-  windowMs: 60 * 1000,
-  maxRequests: 100,
-  keyGenerator: (c) => {
-    const clientIP = c.req.header("x-forwarded-for") || "unknown";
-    return `expenses-tracker:rate_limit:${clientIP}`;
-  },
-});
 
-app.use("*", apiRateLimit);
+// TODO: Have to fix the rate limit, it takes too long to respond
+// const apiRateLimit = rateLimit({
+//   windowMs: 60 * 1000,
+//   maxRequests: 100,
+//   keyGenerator: (c) => {
+//     const clientIP = c.req.header("x-forwarded-for") || "unknown";
+//     return `expenses-tracker:rate_limit:${clientIP}`;
+//   },
+// });
+
+// app.use("*", apiRateLimit);
 
 const testRoute = app.route("/test", test);
 const authRoute = app.route("/auth", auth);

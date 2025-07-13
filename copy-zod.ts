@@ -2,7 +2,7 @@ import { rmSync, cpSync } from "fs";
 import { join } from "path";
 
 const sourceDir = join(__dirname, "zod");
-const targetDir = join(__dirname, "..", "expenses-tracker", "src", "zod");
+const targetDir = join(__dirname, "..", "expense-tracker", "src", "zod");
 
 // Remove existing files in the target directory
 rmSync(targetDir, { recursive: true, force: true });

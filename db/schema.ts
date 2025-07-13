@@ -21,8 +21,7 @@ export const users = pgTable(
     id: uuid("id").primaryKey().defaultRandom(),
     name: varchar("name", { length: 255 }).notNull(),
     email: varchar("email", { length: 255 }).notNull().unique(),
-    password: varchar("password", { length: 255 }).notNull(),
-    isVerified: integer("is_verified"),
+    // isVerified: integer("is_verified"),
     picture: varchar("profile_picture", {
       length: 255,
     })
@@ -34,8 +33,8 @@ export const users = pgTable(
     })
       .notNull()
       .default("0"),
-    otp: varchar("otp", { length: 6 }).notNull().default(""),
-    otpExpiresAt: timestamp("otp_expires_at").notNull().defaultNow(),
+    // otp: varchar("otp", { length: 6 }).notNull().default(""),
+    // otpExpiresAt: timestamp("otp_expires_at").notNull().defaultNow(),
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
   },
