@@ -12,7 +12,7 @@ const app = new Hono().basePath("/api");
 app.use(
   "*",
   cors({
-    origin: ["http://localhost:5173", "https://alibaba-x.vercel.app/"],
+    origin: "*",
     allowHeaders: ["Content-Type", "Authorization"],
     allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     exposeHeaders: ["Content-Length"],
