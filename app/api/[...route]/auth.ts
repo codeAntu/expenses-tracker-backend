@@ -50,7 +50,6 @@ const authRoute = new Hono().post(
             name: decodedToken.name,
             email: decodedToken.email,
             picture: decodedToken.picture?.toString() || "",
-            totalAmount: "0",
           })
           .returning();
         user = newUser[0];
@@ -69,7 +68,6 @@ const authRoute = new Hono().post(
           id: user.id,
           name: user.name,
           email: user.email,
-          totalAmount: user.totalAmount,
           picture: user.picture || "",
           token,
         })
