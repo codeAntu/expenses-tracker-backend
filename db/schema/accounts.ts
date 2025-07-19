@@ -24,7 +24,6 @@ export const Accounts = pgTable("accounts", {
   name: Name,
   description: Description,
   balance: amount("balance"),
-  accountType: transactionTypeEnum("account_type").notNull(),
   icon: Icon,
   color: Color,
   userId: userRef(),
