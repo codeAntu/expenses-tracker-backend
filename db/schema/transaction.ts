@@ -1,4 +1,5 @@
 import { pgTable, uuid, varchar } from "drizzle-orm/pg-core";
+import { accountRef } from "./accounts";
 import {
   amount,
   createdAt,
@@ -6,8 +7,7 @@ import {
   Id,
   transactionTypeEnum,
   updatedAt,
-} from ".";
-import { accountRef } from "./accounts";
+} from "./index";
 import { userRef } from "./users";
 
 export const transactions = pgTable("transaction", {

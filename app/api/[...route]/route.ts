@@ -4,7 +4,6 @@ import { handle } from "hono/vercel";
 import auth from "./auth";
 import test from "./test";
 import transaction from "./transaction";
-import { rateLimit } from "@/lib/rateLimit";
 
 export const runtime = "nodejs";
 
@@ -21,7 +20,6 @@ app.use(
   })
 );
 
-
 // TODO: Have to fix the rate limit, it takes too long to respond
 // const apiRateLimit = rateLimit({
 //   windowMs: 60 * 1000,
@@ -36,7 +34,7 @@ app.use(
 
 const testRoute = app.route("/test", test);
 const authRoute = app.route("/auth", auth);
-const transactionRoute = app.route("/api/transaction", transaction);
+const transactionRoute = app.route("/transaction", transaction);
 
 const hello = app.get("/hello", (c) => {
   return c.json({

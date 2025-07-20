@@ -1,5 +1,5 @@
 import { index, pgTable, uuid } from "drizzle-orm/pg-core";
-import { Email, Id, Name, Picture, createdAt, updatedAt } from ".";
+import { Email, Id, Name, Picture, createdAt, updatedAt } from "./index";
 
 export const users = pgTable(
   "users",

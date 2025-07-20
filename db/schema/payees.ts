@@ -1,6 +1,6 @@
 import { pgTable } from "drizzle-orm/pg-core";
-import { Description, Id, Name, createdAt, updatedAt } from ".";
 import { accountRef } from "./accounts";
+import { Description, Id, Name, createdAt, updatedAt } from "./index";
 import { userRef } from "./users";
 
 export const payees = pgTable("payees", {

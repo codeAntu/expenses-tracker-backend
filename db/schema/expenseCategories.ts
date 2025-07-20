@@ -8,7 +8,7 @@ import {
   Id,
   Name,
   updatedAt,
-} from ".";
+} from "./index";
 import { userRef } from "./users";
 
 export const expenseCategories = pgTable("expense_categories", {

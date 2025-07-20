@@ -1,4 +1,5 @@
 import { pgTable, timestamp } from "drizzle-orm/pg-core";
+import { accountRef } from "./accounts";
 import {
   amount,
   Color,
@@ -8,8 +9,7 @@ import {
   Id,
   Name,
   updatedAt,
-} from ".";
-import { accountRef } from "./accounts";
+} from "./index";
 import { userRef } from "./users";
 
 export const goals = pgTable("goals", {
