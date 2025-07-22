@@ -36,7 +36,7 @@ function createResponse<T = unknown>({
 }
 
 const Responses = {
-  success: <T>(message: string, data: T) =>
+  success: <T>(message: string, data?: T) =>
     createResponse<T>({ success: true, message, data }),
   created: <T>(message: string, data: T) =>
     createResponse<T>({ success: true, message, data, statusCode: 201 }),

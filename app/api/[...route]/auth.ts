@@ -58,11 +58,11 @@ const authRoute = new Hono().post(
           .returning();
         user = newUser[0];
 
-        await createAccount(
-          user.id,
-          "Main Account",
-          "This is your main account"
-        );
+        await createAccount({
+          userId: user.id,
+          name: "Main Account",
+          description: "This is your main account.",
+        });
       }
 
       const userToken = {

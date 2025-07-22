@@ -10,7 +10,7 @@ import {
 } from "./index";
 import { userRef } from "./users";
 
-export const transactions = pgTable("transaction", {
+export const transactionsTable = pgTable("transaction", {
   id: Id,
   amount: amount("amount"),
   description: Description.notNull(),
