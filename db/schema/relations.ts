@@ -3,13 +3,13 @@ import { Accounts } from "./accounts";
 import { expenseCategories } from "./expenseCategories";
 import { goals } from "./goals";
 import { payees } from "./payees";
-import { transactions } from "./transaction";
+import { transactionsTable } from "./transaction";
 import { transfers } from "./transfers";
 import { users } from "./users";
 
 export const userRelations = relations(users, ({ many }) => ({
   accounts: many(Accounts),
-  transactions: many(transactions),
+  transactions: many(transactionsTable),
   expenseCategories: many(expenseCategories),
   goals: many(goals),
   transfers: many(transfers),
@@ -21,20 +21,20 @@ export const accountRelations = relations(Accounts, ({ one, many }) => ({
     fields: [Accounts.userId],
     references: [users.id],
   }),
-  transactions: many(transactions),
+  transactions: many(transactionsTable),
   transfersFrom: many(transfers, { relationName: "fromAccount" }),
   transfersTo: many(transfers, { relationName: "toAccount" }),
   payees: many(payees),
   goals: many(goals),
 }));
 
-export const transactionRelations = relations(transactions, ({ one }) => ({
+export const transactionRelations = relations(transactionsTable, ({ one }) => ({
   user: one(users, {
-    fields: [transactions.userId],
+    fields: [transactionsTable.userId],
     references: [users.id],
   }),
   account: one(Accounts, {
-    fields: [transactions.accountId],
+    fields: [transactionsTable.accountId],
     references: [Accounts.id],
   }),
 }));

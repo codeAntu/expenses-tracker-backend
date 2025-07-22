@@ -92,17 +92,7 @@ export async function depositToAccount(
   description?: string
 ) {
   try {
-    const account = await db
-      .select()
-      .from(Accounts)
-      .where(and(eq(Accounts.id, accountId), eq(Accounts.userId, userId)));
-    if (!account.length) throw new Error("Account not found or access denied");
-    const currentBalance = account[0].balance;
-    const newBalance = (parseFloat(currentBalance) + amount).toFixed(2);
-
-    if (parseFloat(newBalance) > MAX_BALANCE)
-      throw new Error("New balance exceeds maximum limit of 1,000,000");
-
+    const updatedAccount = await addAmountToAccount(userId, accountId, amount);
     await db.insert(transactionsTable).values({
       amount: amount.toString(),
       description: description || DESCRIPTION,
@@ -110,6 +100,52 @@ export async function depositToAccount(
       userId: userId,
       accountId: accountId,
     });
+    return updatedAccount;
+  } catch (error) {
+    throw error;
+  }
+}
+
+export async function withdrawFromAccount(
+  userId: string,
+  accountId: string,
+  amount: number,
+  description?: string
+) {
+  try {
+    // Use deductAmountFromAccount for balance update
+    const updatedAccount = await deductAmountFromAccount(
+      userId,
+      accountId,
+      amount
+    );
+    await db.insert(transactionsTable).values({
+      amount: amount.toString(),
+      description: description || DESCRIPTION,
+      transactionType: TRANSACTION_TYPES.WITHDRAWAL,
+      userId: userId,
+      accountId: accountId,
+    });
+    return updatedAccount;
+  } catch (error) {
+    throw error;
+  }
+}
+
+export async function addAmountToAccount(
+  userId: string,
+  accountId: string,
+  amount: number
+) {
+  try {
+    const account = await db
+      .select()
+      .from(Accounts)
+      .where(and(eq(Accounts.id, accountId), eq(Accounts.userId, userId)));
+    if (!account.length) throw new Error("Account not found or access denied");
+    const currentBalance = parseFloat(account[0].balance);
+    const newBalance = (currentBalance + amount).toFixed(2);
+
     const updatedAccount = await db
       .update(Accounts)
       .set({
@@ -126,11 +162,10 @@ export async function depositToAccount(
   }
 }
 
-export async function withdrawFromAccount(
+export async function deductAmountFromAccount(
   userId: string,
   accountId: string,
-  amount: number,
-  description?: string
+  amount: number
 ) {
   try {
     const account = await db
@@ -142,13 +177,6 @@ export async function withdrawFromAccount(
     if (currentBalance < amount) throw new Error("Insufficient funds");
     const newBalance = (currentBalance - amount).toFixed(2);
 
-    await db.insert(transactionsTable).values({
-      amount: amount.toString(),
-      description: description || DESCRIPTION,
-      transactionType: TRANSACTION_TYPES.WITHDRAWAL,
-      userId: userId,
-      accountId: accountId,
-    });
     const updatedAccount = await db
       .update(Accounts)
       .set({

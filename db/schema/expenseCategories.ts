@@ -10,6 +10,7 @@ import {
   updatedAt,
 } from "./index";
 import { userRef } from "./users";
+import { accountRef } from "./accounts";
 
 export const expenseCategories = pgTable("expense_categories", {
   id: Id,
@@ -19,6 +20,7 @@ export const expenseCategories = pgTable("expense_categories", {
   icon: Icon,
   color: Color,
   userId: userRef(),
+  accountId: accountRef(),
   createdAt: createdAt,
   updatedAt: updatedAt,
 });
