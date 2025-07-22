@@ -1,5 +1,5 @@
 import db from "@/db";
-import { transactions as transactionsTable } from "@/db/schema";
+import { transactionsTable } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { Hono } from "hono";
 

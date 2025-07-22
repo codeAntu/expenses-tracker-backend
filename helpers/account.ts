@@ -85,7 +85,7 @@ export async function getAllAccounts(userId: string) {
     .orderBy(desc(Accounts.createdAt));
 }
 
-export async function DepositToAccount(
+export async function depositToAccount(
   userId: string,
   accountId: string,
   amount: number,
@@ -126,7 +126,7 @@ export async function DepositToAccount(
   }
 }
 
-export async function WithdrawFromAccount(
+export async function withdrawFromAccount(
   userId: string,
   accountId: string,
   amount: number,
@@ -141,7 +141,7 @@ export async function WithdrawFromAccount(
     const currentBalance = parseFloat(account[0].balance);
     if (currentBalance < amount) throw new Error("Insufficient funds");
     const newBalance = (currentBalance - amount).toFixed(2);
-    
+
     await db.insert(transactionsTable).values({
       amount: amount.toString(),
       description: description || DESCRIPTION,

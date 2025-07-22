@@ -1,18 +1,18 @@
-import { Hono } from "hono";
-import { isLoggedIn } from "@/middleware/checkLogin";
-import { getUser } from "@/utils/context";
 import {
   createAccount,
   createAccountValidator,
   deleteAccount,
-  DepositToAccount,
+  depositToAccount,
   getAllAccounts,
   updateAccount,
   withdrawDepositValidator,
+  withdrawFromAccount,
 } from "@/helpers/account";
+import { isLoggedIn } from "@/middleware/checkLogin";
+import { getUser } from "@/utils/context";
 import { Responses } from "@/utils/responses";
-import { z } from "zod";
 import { zValidator } from "@hono/zod-validator";
+import { Hono } from "hono";
 
 const accountRouter = new Hono();
 
@@ -76,7 +76,12 @@ accountRouter.put(
         color: data.color || "",
       });
 
-      return c.json(Responses.success("Account updated successfully", {}), 200);
+      return c.json(
+        Responses.success("Account updated successfully", {
+          account: updatedAccount,
+        }),
+        200
+      );
     } catch (error) {
       return c.json(Responses.error("Failed to update account", error), 500);
     }
@@ -89,9 +94,14 @@ accountRouter.delete("/:id", async (c) => {
   const accountId = c.req.param("id");
 
   try {
-    await deleteAccount(accountId, user.id);
+    const result = await deleteAccount(accountId, user.id);
 
-    return c.json(Responses.success("Account deleted successfully", {}), 200);
+    return c.json(
+      Responses.success("Account deleted successfully", {
+        account: result,
+      }),
+      200
+    );
   } catch (error) {
     return c.json(Responses.error("Failed to delete account", error), 500);
   }
@@ -108,7 +118,7 @@ accountRouter.post(
     const { amount, description } = await c.req.json();
 
     try {
-      const result = await DepositToAccount(
+      const result = await depositToAccount(
         user.id,
         accountId,
         amount,
@@ -116,7 +126,11 @@ accountRouter.post(
       );
 
       return c.json(
-        Responses.success("Deposit successful", { accountId, amount }),
+        Responses.success("Deposit successful", {
+          accountId,
+          amount,
+          account: result,
+        }),
         200
       );
     } catch (error) {
@@ -124,3 +138,36 @@ accountRouter.post(
     }
   }
 );
+
+accountRouter.post(
+  "/:id/withdraw",
+  zValidator("json", withdrawDepositValidator),
+  async (c) => {
+    const user = getUser(c);
+
+    const accountId = c.req.param("id");
+    const { amount, description } = await c.req.json();
+
+    try {
+      const result = await withdrawFromAccount(
+        user.id,
+        accountId,
+        -amount,
+        description
+      );
+
+      return c.json(
+        Responses.success("Withdrawal successful", {
+          accountId,
+          amount,
+          account: result,
+        }),
+        200
+      );
+    } catch (error) {
+      return c.json(Responses.error("Failed to withdraw", error), 500);
+    }
+  }
+);
+
+export default accountRouter;

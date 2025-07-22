@@ -4,6 +4,7 @@ import { handle } from "hono/vercel";
 import auth from "./auth";
 import test from "./test";
 import transaction from "./transaction";
+import accountRouter from "./accounts";
 
 export const runtime = "nodejs";
 
@@ -34,6 +35,7 @@ app.use(
 
 const testRoute = app.route("/test", test);
 const authRoute = app.route("/auth", auth);
+const accountRoute = app.route("/account", accountRouter);
 const transactionRoute = app.route("/transaction", transaction);
 
 const hello = app.get("/hello", (c) => {
@@ -50,4 +52,6 @@ export type AppType =
   | typeof hello
   | typeof testRoute
   | typeof authRoute
-  | typeof transactionRoute;
+  | typeof transactionRoute
+  | typeof accountRoute;
+  
