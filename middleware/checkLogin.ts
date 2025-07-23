@@ -6,10 +6,16 @@ import { Context, Next } from "hono";
 
 export const isLoggedIn = async (c: Context, next: Next) => {
   const authHeader = c.req.header("Authorization");
+
+  console.log("Authorization header:", authHeader);
+
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
     return c.json(Responses.unauthorized("No token provided"), 401);
   }
   const token = authHeader.split(" ")[1];
+
+  console.log("Token received:", token);
+
   try {
     const decodedToken = await admin.auth().verifyIdToken(token);
     const decoded: Token = {

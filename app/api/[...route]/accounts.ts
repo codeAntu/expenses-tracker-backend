@@ -14,30 +14,23 @@ import { Responses } from "@/utils/responses";
 import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
 
-const accountRouter = new Hono();
+const accountRouter = new Hono()
+  .use("*", isLoggedIn)
+  .get("/", async (c) => {
+    const user = getUser(c);
 
-accountRouter.use("*", isLoggedIn);
+    const accounts = getAllAccounts(user.id);
 
-accountRouter.get("/", async (c) => {
-  const user = getUser(c);
+    if (!accounts) {
+      return c.json(Responses.notFound("No accounts found for this user"));
+    }
 
-  const accounts = getAllAccounts(user.id);
-
-  if (!accounts) {
-    return c.json(Responses.notFound("No accounts found for this user"));
-  }
-
-  return c.json(
-    Responses.success("Accounts retrieved successfully", accounts),
-    200
-  );
-});
-
-// createAccount
-accountRouter.post(
-  "/",
-  zValidator("json", createAccountValidator),
-  async (c) => {
+    return c.json(
+      Responses.success("Accounts retrieved successfully", accounts),
+      200
+    );
+  })
+  .post("/", zValidator("json", createAccountValidator), async (c) => {
     const user = getUser(c);
     const data = await c.req.json();
 
@@ -56,14 +49,8 @@ accountRouter.post(
     } catch (error) {
       return c.json(Responses.error("Failed to create account", error), 500);
     }
-  }
-);
-
-// updateAccount
-accountRouter.put(
-  "/:id",
-  zValidator("json", createAccountValidator),
-  async (c) => {
+  })
+  .put("/:id", zValidator("json", createAccountValidator), async (c) => {
     const user = getUser(c);
     const data = await c.req.json();
     const accountId = c.req.param("id");
@@ -85,89 +72,83 @@ accountRouter.put(
     } catch (error) {
       return c.json(Responses.error("Failed to update account", error), 500);
     }
-  }
-);
-
-// deleteAccount
-accountRouter.delete("/:id", async (c) => {
-  const user = getUser(c);
-  const accountId = c.req.param("id");
-
-  try {
-    const result = await deleteAccount(accountId, user.id);
-
-    return c.json(
-      Responses.success("Account deleted successfully", {
-        account: result,
-      }),
-      200
-    );
-  } catch (error) {
-    return c.json(Responses.error("Failed to delete account", error), 500);
-  }
-});
-
-// deposit
-accountRouter.post(
-  "/:id/deposit",
-  zValidator("json", withdrawDepositValidator),
-  async (c) => {
+  })
+  .delete("/:id", async (c) => {
     const user = getUser(c);
-
     const accountId = c.req.param("id");
-    const { amount, description } = await c.req.json();
 
     try {
-      const result = await depositToAccount(
-        user.id,
-        accountId,
-        amount,
-        description
-      );
+      const result = await deleteAccount(accountId, user.id);
 
       return c.json(
-        Responses.success("Deposit successful", {
-          accountId,
-          amount,
+        Responses.success("Account deleted successfully", {
           account: result,
         }),
         200
       );
     } catch (error) {
-      return c.json(Responses.error("Failed to deposit", error), 500);
+      return c.json(Responses.error("Failed to delete account", error), 500);
     }
-  }
-);
+  })
+  .post(
+    "/:id/deposit",
+    zValidator("json", withdrawDepositValidator),
+    async (c) => {
+      const user = getUser(c);
 
-accountRouter.post(
-  "/:id/withdraw",
-  zValidator("json", withdrawDepositValidator),
-  async (c) => {
-    const user = getUser(c);
+      const accountId = c.req.param("id");
+      const { amount, description } = await c.req.json();
 
-    const accountId = c.req.param("id");
-    const { amount, description } = await c.req.json();
-
-    try {
-      const result = await withdrawFromAccount(
-        user.id,
-        accountId,
-        -amount,
-        description
-      );
-
-      return c.json(
-        Responses.success("Withdrawal successful", {
+      try {
+        const result = await depositToAccount(
+          user.id,
           accountId,
           amount,
-          account: result,
-        }),
-        200
-      );
-    } catch (error) {
-      return c.json(Responses.error("Failed to withdraw", error), 500);
+          description
+        );
+
+        return c.json(
+          Responses.success("Deposit successful", {
+            accountId,
+            amount,
+            account: result,
+          }),
+          200
+        );
+      } catch (error) {
+        return c.json(Responses.error("Failed to deposit", error), 500);
+      }
     }
-  }
-);
+  )
+  .post(
+    "/:id/withdraw",
+    zValidator("json", withdrawDepositValidator),
+    async (c) => {
+      const user = getUser(c);
+
+      const accountId = c.req.param("id");
+      const { amount, description } = await c.req.json();
+
+      try {
+        const result = await withdrawFromAccount(
+          user.id,
+          accountId,
+          -amount,
+          description
+        );
+
+        return c.json(
+          Responses.success("Withdrawal successful", {
+            accountId,
+            amount,
+            account: result,
+          }),
+          200
+        );
+      } catch (error) {
+        return c.json(Responses.error("Failed to withdraw", error), 500);
+      }
+    }
+  );
 
 export default accountRouter;
