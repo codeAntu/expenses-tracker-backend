@@ -19,7 +19,7 @@ const accountRouter = new Hono()
   .get("/", async (c) => {
     const user = getUser(c);
 
-    const accounts = getAllAccounts(user.id);
+    const accounts = await getAllAccounts(user.id);
 
     if (!accounts) {
       return c.json(Responses.notFound("No accounts found for this user"));
