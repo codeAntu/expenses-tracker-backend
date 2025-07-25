@@ -14,7 +14,7 @@ app.use(
   cors({
     origin: "*",
     allowHeaders: ["Content-Type", "Authorization"],
-    allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowMethods: ["GET", "POST", "DELETE"],
     exposeHeaders: ["Content-Length"],
     maxAge: 600,
     credentials: true,
@@ -46,6 +46,7 @@ const hello = app.get("/hello", (c) => {
 
 export const GET = handle(app);
 export const POST = handle(app);
+export const DELETE = handle(app);
 
 export type AppType =
   | typeof app
@@ -54,4 +55,3 @@ export type AppType =
   | typeof authRoute
   | typeof transactionRoute
   | typeof accountRoute;
-  
