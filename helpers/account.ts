@@ -11,7 +11,7 @@ const MAX_BALANCE = 1_000_000;
 
 export const createAccountValidator = z.object({
   name: z.string().min(1, "Name is required").max(100, "Name is too long"),
-  description: z.string().max(255, "Description is too long"),
+  description: z.string().max(255, "Description is too long").optional(),
   icon: z.string().optional(),
   color: z.string().optional(),
 });

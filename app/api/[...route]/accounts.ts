@@ -32,7 +32,7 @@ const accountRouter = new Hono()
   })
   .post("/", zValidator("json", createAccountValidator), async (c) => {
     const user = getUser(c);
-    const data = await c.req.json();
+    const data = c.req.valid("json");
 
     try {
       const account = await createAccount(user.id, {
@@ -52,7 +52,7 @@ const accountRouter = new Hono()
   })
   .put("/:id", zValidator("json", createAccountValidator), async (c) => {
     const user = getUser(c);
-    const data = await c.req.json();
+    const data = c.req.valid("json");
     const accountId = c.req.param("id");
 
     try {
@@ -97,7 +97,7 @@ const accountRouter = new Hono()
       const user = getUser(c);
 
       const accountId = c.req.param("id");
-      const { amount, description } = await c.req.json();
+      const { amount, description } = c.req.valid("json");
 
       try {
         const result = await depositToAccount(
@@ -127,7 +127,7 @@ const accountRouter = new Hono()
       const user = getUser(c);
 
       const accountId = c.req.param("id");
-      const { amount, description } = await c.req.json();
+      const { amount, description } = c.req.valid("json");
 
       try {
         const result = await withdrawFromAccount(

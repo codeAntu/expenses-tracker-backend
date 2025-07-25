@@ -140,7 +140,7 @@ expense.post(
   async (c) => {
     try {
       const user = getUser(c);
-      const data = await c.req.json();
+      const data = c.req.valid("json");
 
       const res = await createExpense(user.id, data);
 
@@ -171,14 +171,13 @@ expense.delete("/:id", async (c) => {
   }
 });
 
-
 expense.post(
   "/categories",
   zValidator("json", createExpenseCategoryValidator),
   async (c) => {
     try {
       const user = getUser(c);
-      const data = await c.req.json();
+      const data = c.req.valid("json");
 
       const newCategory = await createExpenseCategory(user.id, data);
 
@@ -226,7 +225,7 @@ expense.post(
     try {
       const user = getUser(c);
       const categoryId = c.req.param("id");
-      const data = await c.req.json();
+      const data = c.req.valid("json");
 
       const res = addExpenseToCategory(user.id, categoryId, data);
 
