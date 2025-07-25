@@ -14,7 +14,7 @@ app.use(
   cors({
     origin: "*",
     allowHeaders: ["Content-Type", "Authorization"],
-    allowMethods: ["GET", "POST", "DELETE"],
+    allowMethods: ["GET", "POST", "DELETE", "OPTIONS"],
     exposeHeaders: ["Content-Length"],
     maxAge: 600,
     credentials: true,
@@ -47,6 +47,7 @@ const hello = app.get("/hello", (c) => {
 export const GET = handle(app);
 export const POST = handle(app);
 export const DELETE = handle(app);
+export const OPTIONS = handle(app);
 
 export type AppType =
   | typeof app

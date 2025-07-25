@@ -1,6 +1,6 @@
 import db from "@/db";
 import { users } from "@/db/schema";
-import admin, { auth } from "@/firebase";
+import { auth } from "@/firebase";
 import { createAccount } from "@/helpers/account";
 import { Responses } from "@/utils/responses";
 import { Token } from "@/utils/types/userTypes";
@@ -8,13 +8,20 @@ import { authValidator } from "@/zod/auth";
 import { zValidator } from "@hono/zod-validator";
 import { eq } from "drizzle-orm";
 import { Hono } from "hono";
+import jwt from "jsonwebtoken";
+
+const JWT_SECRET = process.env.JWT_SECRET!;
 
 function createToken(user: Token) {
-  return admin.auth().createCustomToken(user.id, {
-    id: user.id,
-    email: user.email,
-    name: user.name,
-  });
+  return jwt.sign(
+    {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+    },
+    JWT_SECRET,
+    { expiresIn: "5y" }
+  );
 }
 
 const authRoute = new Hono().post(
