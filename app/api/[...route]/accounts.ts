@@ -8,14 +8,12 @@ import {
   withdrawDepositValidator,
   withdrawFromAccount,
 } from "@/helpers/account";
-import { isLoggedIn } from "@/middleware/checkLogin";
 import { getUser } from "@/utils/context";
 import { Responses } from "@/utils/responses";
 import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
 
 const accountRouter = new Hono()
-  .use("*", isLoggedIn)
   .get("/", async (c) => {
     const user = getUser(c);
 

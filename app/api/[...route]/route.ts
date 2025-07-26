@@ -1,10 +1,11 @@
+import { isLoggedIn } from "@/middleware/checkLogin";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { handle } from "hono/vercel";
+import accountRouter from "./accounts";
 import auth from "./auth";
 import test from "./test";
 import transaction from "./transaction";
-import accountRouter from "./accounts";
 
 export const runtime = "nodejs";
 
@@ -32,6 +33,11 @@ app.use(
 // });
 
 // app.use("*", apiRateLimit);
+
+// Apply authentication middleware to protected routes
+app.use("/account/*", isLoggedIn);
+app.use("/transaction/*", isLoggedIn);
+app.use("/test/*", isLoggedIn);
 
 const testRoute = app.route("/test", test);
 const authRoute = app.route("/auth", auth);

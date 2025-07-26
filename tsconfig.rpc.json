@@ -20,6 +20,6 @@
       "@rpc/*": ["./app/rpc/*"]
     }
   },
-  "include": ["./rpc/hcWithType.ts", "./rpc/rpc.ts"],
+  "include": ["./rpc/hcWithType.ts"],
   "exclude": ["node_modules", "dist"]
 }
