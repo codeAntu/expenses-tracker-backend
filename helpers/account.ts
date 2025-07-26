@@ -10,7 +10,7 @@ const DESCRIPTION = "";
 const MAX_BALANCE = 1_000_000;
 
 export const createAccountValidator = z.object({
-  name: z.string().min(1, "Name is required").max(100, "Name is too long"),
+  title: z.string().min(1, "Title is required").max(100, "Title is too long"),
   description: z.string().max(255, "Description is too long").optional(),
   icon: z.string().optional(),
   color: z.string().optional(),
@@ -28,12 +28,12 @@ type CreateAccount = z.infer<typeof createAccountValidator>;
 
 export async function createAccount(userId: string, data: CreateAccount) {
   try {
-    const { name, description, icon, color } = data;
+    const { title, description, icon, color } = data;
     const result = await db
       .insert(Accounts)
       .values({
         userId,
-        name,
+        title,
         description,
         icon: icon || ICON,
         color: color || COLOR,

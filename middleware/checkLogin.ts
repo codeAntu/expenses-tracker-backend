@@ -1,4 +1,3 @@
-import { getUserById } from "@/helpers/user";
 import { Responses } from "@/utils/responses";
 import { Token } from "@/utils/types/userTypes";
 import { Context, Next } from "hono";
@@ -17,7 +16,7 @@ export const isLoggedIn = async (c: Context, next: Next) => {
   try {
     const decoded = jwt.verify(token, JWT_SECRET) as Token;
 
-    const user = await getUserById(decoded.id);
+    const user = decoded;
 
     if (!user) {
       return c.json(Responses.notFound("User not found"), 404);

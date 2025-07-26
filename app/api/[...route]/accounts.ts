@@ -32,14 +32,14 @@ const accountRouter = new Hono()
   })
   .post("/", zValidator("json", createAccountValidator), async (c) => {
     const user = getUser(c);
-    const data = c.req.valid("json");
+    const validated = c.req.valid("json");
 
     try {
       const account = await createAccount(user.id, {
-        name: data.name,
-        description: data.description,
-        icon: data.icon || "",
-        color: data.color || "",
+        title: validated.title,
+        description: validated.description,
+        icon: validated.icon || "",
+        color: validated.color || "",
       });
 
       return c.json(
@@ -52,15 +52,15 @@ const accountRouter = new Hono()
   })
   .put("/:id", zValidator("json", createAccountValidator), async (c) => {
     const user = getUser(c);
-    const data = c.req.valid("json");
+    const validated = c.req.valid("json");
     const accountId = c.req.param("id");
 
     try {
       const updatedAccount = await updateAccount(user.id, accountId, {
-        name: data.name,
-        description: data.description,
-        icon: data.icon || "",
-        color: data.color || "",
+        title: validated.title,
+        description: validated.description,
+        icon: validated.icon || "",
+        color: validated.color || "",
       });
 
       return c.json(

@@ -11,7 +11,7 @@ export const transactionTypeEnum = pgEnum("transaction_type", [
 ]);
 
 export const Id = uuid("id").primaryKey().defaultRandom();
-export const Name = varchar("name", { length: 255 }).notNull();
+export const Name = varchar("title", { length: 255 }).notNull();
 export const Description = varchar("description", { length: 255 });
 export const Email = varchar("email", { length: 255 }).notNull().unique();
 export const UserId = uuid("user_id").notNull();

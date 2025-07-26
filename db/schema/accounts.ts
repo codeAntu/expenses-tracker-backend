@@ -20,7 +20,7 @@ export function accountRef(columnName: string = "account_id") {
 
 export const Accounts = pgTable("accounts", {
   id: Id,
-  name: Name,
+  title: Name,
   description: Description,
   balance: amount("balance"),
   icon: Icon,
