@@ -27,7 +27,6 @@ export const createExpenseCategoryValidator = z.object({
   accountId: z.string().uuid().optional(),
 });
 
-
 export type CreateExpense = z.infer<typeof createExpenseValidator>;
 
 export async function getAllAExpenses(userId: string) {
@@ -62,8 +61,12 @@ export async function getExpenses(userId: string) {
         )
       );
 
+    console.log("Retrieved expenses:", expenses);
+
     return expenses;
   } catch (error) {
+    console.log("Error retrieving expenses:", error);
+
     throw new Error("Failed to retrieve expenses: " + error);
   }
 }
@@ -270,5 +273,3 @@ export async function addExpenseToCategory(
     throw new Error("Failed to add expense to category: " + error);
   }
 }
-
-

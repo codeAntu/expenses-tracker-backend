@@ -6,6 +6,7 @@ import accountRouter from "./accounts";
 import auth from "./auth";
 import test from "./test";
 import transaction from "./transaction";
+import expense from "./expense";
 
 export const runtime = "nodejs";
 
@@ -38,11 +39,13 @@ app.use(
 app.use("/account/*", isLoggedIn);
 app.use("/transaction/*", isLoggedIn);
 app.use("/test/*", isLoggedIn);
+app.use("/expenses/*", isLoggedIn);
 
 const testRoute = app.route("/test", test);
 const authRoute = app.route("/auth", auth);
 const accountRoute = app.route("/account", accountRouter);
 const transactionRoute = app.route("/transaction", transaction);
+const expensesRoute = app.route("/expenses", expense);
 
 const hello = app.get("/hello", (c) => {
   return c.json({
@@ -62,4 +65,5 @@ export type AppType =
   | typeof testRoute
   | typeof authRoute
   | typeof transactionRoute
-  | typeof accountRoute;
+  | typeof accountRoute
+  | typeof expensesRoute;
