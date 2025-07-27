@@ -192,3 +192,12 @@ export async function deductAmountFromAccount(
     throw error;
   }
 }
+
+export async function getAccountById(userId: string, accountId: string) {
+  const account = await db
+    .select()
+    .from(Accounts)
+    .where(and(eq(Accounts.id, accountId), eq(Accounts.userId, userId)));
+  if (!account.length) throw new Error("Account not found or access denied");
+  return account[0];
+}

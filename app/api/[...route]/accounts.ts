@@ -3,6 +3,7 @@ import {
   createAccountValidator,
   deleteAccount,
   depositToAccount,
+  getAccountById,
   getAllAccounts,
   updateAccount,
   withdrawDepositValidator,
@@ -48,6 +49,24 @@ const accountRouter = new Hono()
       return c.json(Responses.error("Failed to create account", error), 500);
     }
   })
+  .get("/:id", async (c) => {
+    const user = getUser(c);
+    const accountId = c.req.param("id");
+
+    try {
+      const account = await getAccountById(user.id, accountId);
+      if (!account) {
+        return c.json(Responses.notFound("Account not found"), 404);
+      }
+
+      return c.json(
+        Responses.success("Account retrieved successfully", account),
+        200
+      );
+    } catch (error) {
+      return c.json(Responses.error("Failed to retrieve account", error), 500);
+    }
+  })
   .put("/:id", zValidator("json", createAccountValidator), async (c) => {
     const user = getUser(c);
     const validated = c.req.valid("json");
@@ -75,8 +94,10 @@ const accountRouter = new Hono()
     const user = getUser(c);
     const accountId = c.req.param("id");
 
+    console.log(`Deleting account with ID: ${accountId} for user: ${user.id}`);
+
     try {
-      const result = await deleteAccount(accountId, user.id);
+      const result = await deleteAccount(user.id, accountId);
 
       return c.json(
         Responses.success("Account deleted successfully", {
