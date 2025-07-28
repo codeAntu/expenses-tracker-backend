@@ -12,6 +12,7 @@ import {
   getExpenseCategories,
   getExpenses,
 } from "@/helpers/expense";
+import { getExpensesByAccountId } from "@/helpers/getExpensesByAccountId";
 import { getUser } from "@/utils/context";
 import { Responses } from "@/utils/responses";
 import { zValidator } from "@hono/zod-validator";
@@ -224,6 +225,28 @@ const expense = new Hono()
         );
       }
     }
-  );
+  )
+  .get("/by-account/:accountId", async (c) => {
+    try {
+      const user = getUser(c);
+      const accountId = c.req.param("accountId");
+      const expenses = await getExpensesByAccountId(user.id, accountId);
+      if (!expenses || expenses.length === 0) {
+        return c.json(Responses.notFound("No expenses found for this account"));
+      }
+      return c.json(
+        Responses.success(
+          "Expenses for account retrieved successfully",
+          expenses
+        ),
+        200
+      );
+    } catch (error) {
+      return c.json(
+        Responses.error("Failed to get expenses for account", error),
+        500
+      );
+    }
+  });
 
 export default expense;
