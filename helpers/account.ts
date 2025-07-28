@@ -177,6 +177,14 @@ export async function deductAmountFromAccount(
     if (currentBalance < amount) throw new Error("Insufficient funds");
     const newBalance = (currentBalance - amount).toFixed(2);
 
+    console.log("Deducting amount from account:", {
+      userId,
+      accountId,
+      amount,
+      currentBalance,
+      newBalance,
+    });
+
     const updatedAccount = await db
       .update(Accounts)
       .set({

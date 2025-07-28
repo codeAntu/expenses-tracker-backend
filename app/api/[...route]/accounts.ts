@@ -93,9 +93,6 @@ const accountRouter = new Hono()
   .delete("/:id", async (c) => {
     const user = getUser(c);
     const accountId = c.req.param("id");
-
-    console.log(`Deleting account with ID: ${accountId} for user: ${user.id}`);
-
     try {
       const result = await deleteAccount(user.id, accountId);
 

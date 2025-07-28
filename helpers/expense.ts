@@ -61,12 +61,8 @@ export async function getExpenses(userId: string) {
         )
       );
 
-    console.log("Retrieved expenses:", expenses);
-
     return expenses;
   } catch (error) {
-    console.log("Error retrieving expenses:", error);
-
     throw new Error("Failed to retrieve expenses: " + error);
   }
 }
@@ -137,8 +133,23 @@ export async function createExpense(
       expenseData;
 
     if (accountId) {
+      console.log("Deducting amount from account here:", {
+        userId,
+        accountId,
+        amount,
+      }
+      );
+      
       await deductAmountFromAccount(userId, accountId, amount);
     }
+
+    console.log("Creating expense with data:", {
+      amount,
+      description,
+      referenceId,
+      categoryId,
+      accountId,
+    });
 
     const newExpense = await db
       .insert(transactionsTable)
