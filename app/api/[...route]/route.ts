@@ -7,6 +7,7 @@ import auth from "./auth";
 import test from "./test";
 import transaction from "./transaction";
 import expense from "./expense";
+import KeyAuth from "./key-auth";
 
 export const runtime = "nodejs";
 
@@ -46,6 +47,7 @@ const authRoute = app.route("/auth", auth);
 const accountRoute = app.route("/account", accountRouter);
 const transactionRoute = app.route("/transaction", transaction);
 const expensesRoute = app.route("/expenses", expense);
+const keyAuthRoute = app.route("/key-auth", KeyAuth);
 
 const hello = app.get("/hello", (c) => {
   return c.json({
@@ -66,4 +68,5 @@ export type AppType =
   | typeof authRoute
   | typeof transactionRoute
   | typeof accountRoute
-  | typeof expensesRoute;
+  | typeof expensesRoute
+  | typeof keyAuthRoute;

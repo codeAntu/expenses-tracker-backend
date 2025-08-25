@@ -7,3 +7,4 @@ export * from "./schema/relations";
 export * from "./schema/transaction";
 export * from "./schema/transfers";
 export * from "./schema/users";
+export * from "./schema/key";
