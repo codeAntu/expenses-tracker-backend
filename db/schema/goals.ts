@@ -9,7 +9,7 @@ import {
   Id,
   Name,
   updatedAt,
-} from "./index";
+} from "./common";
 import { userRef } from "./users";
 
 export const goals = pgTable("goals", {

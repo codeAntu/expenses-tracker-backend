@@ -1,4 +1,5 @@
 import { pgTable } from "drizzle-orm/pg-core";
+import { accountRef } from "./accounts";
 import {
   amount,
   Color,
@@ -8,9 +9,8 @@ import {
   Id,
   Name,
   updatedAt,
-} from "./index";
+} from "./common";
 import { userRef } from "./users";
-import { accountRef } from "./accounts";
 
 export const expenseCategories = pgTable("expense_categories", {
   id: Id,

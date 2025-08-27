@@ -1,13 +1,13 @@
-import { redis } from "@/config/redis";
+import { connectRedis, redis } from "@/config/redis";
 import db from "@/db";
 import key from "@/db/schema/key";
 import { Responses } from "@/utils/responses";
 import { zValidator } from "@hono/zod-validator";
-import { createVerify } from "crypto";
+import { constants, createVerify, randomBytes } from "crypto";
 import { eq } from "drizzle-orm";
 import { Hono } from "hono";
-import { z } from "zod";
 import jwt from "jsonwebtoken";
+import { z } from "zod";
 
 const JWT_SECRET = process.env.JWT_SECRET!;
 
@@ -15,6 +15,8 @@ const keyAuthValidator = z.object({
   email: z.string().email("Invalid email format"),
   publicKey: z.string().min(1, "Public key is required"),
 });
+
+await connectRedis();
 
 const KeyAuth = new Hono()
   .post("/register", zValidator("json", keyAuthValidator), async (c) => {
@@ -27,9 +29,21 @@ const KeyAuth = new Hono()
         .where(eq(key.email, email));
 
       if (existingUser.length > 0) {
+        const updatedKey = await db
+          .update(key)
+          .set({
+            publicKey,
+            updatedAt: new Date(),
+          })
+          .where(eq(key.email, email))
+          .returning({
+            id: key.id,
+            email: key.email,
+          });
+
         return c.json(
-          Responses.alreadyExists("Email is already registered"),
-          409
+          Responses.success("Key updated successfully", updatedKey[0]),
+          200
         );
       }
 
@@ -69,19 +83,14 @@ const KeyAuth = new Hono()
           return c.json(Responses.notFound("User not found"), 404);
         }
 
-        // Generate 32-byte challenge (256 bits)
-        const challenge = crypto.getRandomValues(new Uint8Array(32));
-        const challengeHex = Array.from(challenge)
-          .map((b) => b.toString(16).padStart(2, "0"))
-          .join("");
+        const challenge = randomBytes(32).toString("hex");
 
-        // Store challenge in Redis with 5-minute expiration
         const challengeKey = `challenge:${email}`;
-        await redis.setEx(challengeKey, 300, challengeHex); // 5 minutes
+        await redis.setEx(challengeKey, 300, challenge); 
 
         return c.json(
           Responses.success("Challenge generated", {
-            challenge: challengeHex,
+            challenge: challenge,
             expiresIn: 300, // seconds
           }),
           200
@@ -127,17 +136,32 @@ const KeyAuth = new Hono()
           );
         }
 
-        // Verify the signature using Web Crypto API
+        // Verify the signature using RSA-PSS
         const publicKeyPem = user[0].publicKey;
 
-        const verifier = createVerify("SHA256");
-        verifier.update(challenge);
-        verifier.end();
+        try {
+          const verifier = createVerify("sha256");
+          verifier.update(challenge, "utf8");
+          verifier.end();
 
-        const isValid = verifier.verify(publicKeyPem, signature, "base64");
+          const isValid = verifier.verify(
+            {
+              key: publicKeyPem,
+              padding: constants.RSA_PKCS1_PSS_PADDING,
+              saltLength: constants.RSA_PSS_SALTLEN_DIGEST,
+            },
+            signature,
+            "base64"
+          );
 
-        if (!isValid) {
-          return c.json(Responses.unauthorized("Invalid signature"), 401);
+          if (!isValid) {
+            return c.json(Responses.unauthorized("Invalid signature"), 401);
+          }
+        } catch (verifyError) {
+          return c.json(
+            Responses.unauthorized("Signature verification failed"),
+            401
+          );
         }
 
         await redis.del(challengeKey);
@@ -166,8 +190,31 @@ const KeyAuth = new Hono()
       const token = authHeader.substring(7);
 
       try {
-        const decoded = jwt.verify(token, JWT_SECRET);
-        return c.json(Responses.success("Token is valid", decoded), 200);
+        const decoded = jwt.verify(token, JWT_SECRET) as {
+          email: string;
+          id: string;
+        };
+
+        // Get user data from database
+        const user = await db
+          .select()
+          .from(key)
+          .where(eq(key.id, decoded.id))
+          .limit(1);
+
+        if (user.length === 0) {
+          return c.json(Responses.notFound("User not found"), 404);
+        }
+
+        const userData = {
+          id: user[0].id,
+          email: user[0].email,
+          publicKey: user[0].publicKey,
+          createdAt: user[0].createdAt,
+          updatedAt: user[0].updatedAt,
+        };
+
+        return c.json(Responses.success("Token is valid", userData), 200);
       } catch (err) {
         return c.json(Responses.unauthorized("Invalid or expired token"), 401);
       }

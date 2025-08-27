@@ -8,7 +8,7 @@ import {
   amount,
   createdAt,
   updatedAt,
-} from "./index";
+} from "./common";
 import { userRef } from "./users";
 
 // Function to reference accounts table

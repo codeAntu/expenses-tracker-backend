@@ -7,7 +7,7 @@ import {
   Id,
   transactionTypeEnum,
   updatedAt,
-} from "./index";
+} from "./common";
 import { userRef } from "./users";
 
 export const transactionsTable = pgTable("transaction", {
